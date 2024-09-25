@@ -5,7 +5,7 @@ class MapToCloudWithIgnore {
 
   def readIgnoreList(filePath: String): Option[Set[String]] = {
     val ignoreList = Source.fromFile(filePath).getLines()
-    val filteredMap = ignoreList.flatMap(line => Option(line.trim))
+    val filteredMap = ignoreList.flatMap(line => Option(line.trim).map(_.toString))
     Some(filteredMap.toSet)
   }
 

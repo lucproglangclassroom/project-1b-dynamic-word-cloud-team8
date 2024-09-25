@@ -6,7 +6,8 @@ class map_to_cloud_w_ignore {
 
   // Method to read the ignore list from a file
   def readIgnoreList(filePath: String): Set[String] = {
-    val ignoreList = Source.fromFile(filePath).getLines().map(_.toLowerCase).toSet
+    val ignoreList = Source.fromFile(filePath).getLines().map(_.toLowerCase).filter(_ != null) .toSet
+
     ignoreList
   }
 

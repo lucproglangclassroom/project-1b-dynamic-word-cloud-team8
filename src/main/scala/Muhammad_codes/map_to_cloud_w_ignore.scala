@@ -1,28 +1,25 @@
-package Muhammad_codes
-
 import scala.io.Source
+import scala.language.postfixOps
 
-class map_to_cloud_w_ignore {
+class MapToCloudWithIgnore {
 
-  // Method to read the ignore list from a file
-  def readIgnoreList(filePath: String): Set[String] = {
-    val ignoreList = Source.fromFile(filePath).getLines().map(_.toLowerCase).filter(_ != null) .toSet
-
-    ignoreList
+  def readIgnoreList(filePath: String): Option[Set[String]] = {
+    val ignoreList = Source.fromFile(filePath).getLines()
+    val filteredMap = ignoreList.flatMap(line => Option(line.trim))
+    Some(filteredMap.toSet)
   }
 
-  // Method to format word counts for output
-  def formatWordCountForOutput(processedData: Map[String, Int], ignoreList: Set[String]): String = {
-    // Process data
-    val wordCloud = processedData.toSeq
-      // filter words in list
-      .filterNot { case (word, _) => ignoreList.contains(word.toLowerCase) }
-      // sort alphabetically and by frequency
-      .sortBy { case (word, count) => (-count, word) }
+    def formatWordCountForOutput(processedData: Map[String, Int], ignoreList: Option[Set[String]]): String = {
+      val filteredData = ignoreList match {
+        case Some(list) => processedData.filterNot { case (word, _) => list.contains(word) }
+        case None => processedData
+      }
 
-    // Create a formatted string in the desired "word: count" format
-    wordCloud.map { case (word, count) => s"$word: $count" }.mkString(" ")
-  }
+      val wordCloud = filteredData.toSeq
+        .sortBy { case (word, count) => (-count, word) }
+
+      wordCloud.map { case (word, count) => s"$word: $count" }
+        .mkString(" ")
+    }
+
 }
-
-

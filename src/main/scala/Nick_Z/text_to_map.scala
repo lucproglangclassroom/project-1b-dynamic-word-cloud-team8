@@ -1,14 +1,15 @@
 import scala.io.Source
 import scala.util.Try
+import scala.language.unsafeNulls
 
 object WordCount {
   def main(args: Array[String]): Unit = {
     if (args.length < 1) {
-      println("Usage: WordCount <filename>")
+      println("Usage: WordCount <filename>") //Change based on desired input
       sys.exit(1)
     }
 
-    val filename = args(0)
+    val filename = args(0) //Get the filename from args
     
     val wordCountMap = countWords(filename)
     

@@ -2,7 +2,7 @@ import scala.io.Source
 import scala.util.Try
 import scala.language.unsafeNulls
 
-object WordCount {
+object WordCountEx {
   def main(args: Array[String]): Unit = {
     if (args.length < 1) {
       println("Usage: WordCount <filename>") //Change based on desired input
@@ -11,7 +11,7 @@ object WordCount {
 
     val filename = args(0) //Get the filename from args
     
-    val wordCountMap = countWords(filename)
+    val wordCountMap = countSomeWords(filename)
     
     wordCountMap match {
       case Some(counts) => println(counts)
@@ -19,7 +19,7 @@ object WordCount {
     }
   }
 
-  def countWords(filename: String): Option[Map[String, Int]] = {
+  def countSomeWords(filename: String): Option[Map[String, Int]] = {
     Try {
       val source = Source.fromFile(filename)
       try {

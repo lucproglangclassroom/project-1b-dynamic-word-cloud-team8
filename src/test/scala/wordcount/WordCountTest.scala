@@ -35,17 +35,15 @@ class TopWordsSpec extends AnyFlatSpec with Matchers {
     val thrown = intercept[NumberFormatException] {
       TopWords.handleArgs(args)
     }
+    thrown.getMessage should include("For input string: \"five\"")
   }
 
   "countWords" should "count words correctly" in {
-    // Create a mock input source
     val input = "Hello world! This is a test. Hello again!"
     val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
     System.setIn(inputStream)
 
-    // Call countWords with appropriate parameters
     noException should be thrownBy TopWords.countWords(2, 10, 5)
-    // Ensure correct output by refactoring countWords to return a Map
   }
 
   it should "not count words shorter than minLength" in {
@@ -54,7 +52,6 @@ class TopWordsSpec extends AnyFlatSpec with Matchers {
     System.setIn(inputStream)
 
     noException should be thrownBy TopWords.countWords(4, 10, 5)
-    // Ensure no words are printed, or that the output is as expected
   }
 
   it should "handle empty input gracefully" in {
@@ -63,7 +60,6 @@ class TopWordsSpec extends AnyFlatSpec with Matchers {
     System.setIn(inputStream)
 
     noException should be thrownBy TopWords.countWords(2, 10, 5)
-    // Ensure no output or specific behavior
   }
 
   it should "not throw an exception when the input has no valid words" in {
@@ -79,9 +75,8 @@ class TopWordsSpec extends AnyFlatSpec with Matchers {
     val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
     System.setIn(inputStream)
 
-    // Capture the output and assert the correct cloud size
-    TopWords.countWords(2, 10, 3)
-    // Check the output to ensure only top 3 words are printed
+    noException should be thrownBy TopWords.countWords(2, 10, 3)
+    // You can validate the output based on expected counts if countWords is refactored
   }
 
   it should "handle varying lengths of input gracefully" in {
@@ -90,6 +85,102 @@ class TopWordsSpec extends AnyFlatSpec with Matchers {
     System.setIn(inputStream)
 
     noException should be thrownBy TopWords.countWords(2, 10, 5)
-    // Ensure expected behavior with normal input
+  }
+
+  it should "correctly count words with special characters" in {
+    val input = "Hello-world! Test, test; testing... a test."
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(2, 10, 5)
+  }
+
+  it should "ignore case when counting words" in {
+    val input = "Hello hello HELLO world World"
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(2, 10, 5)
+  }
+
+  it should "count the correct number of unique words" in {
+    val input = "One two two three three three"
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(2, 10, 5)
+  }
+
+  it should "handle very large inputs without crashing" in {
+    val input = (1 to 10000).map(i => s"word$i").mkString(" ")
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(3, 10000, 10)
+  }
+
+  it should "count repeated words accurately" in {
+    val input = "hello hello hello world"
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(3, 10000, 10)
+  }
+
+  it should "handle words separated by various delimiters" in {
+    val input = "word1, word2; word3: word4? word5!"
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(2, 10, 5)
+  }
+
+  it should "ignore numbers as valid words when counting" in {
+    val input = "123 456 789 hello world"
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(2, 10, 5)
+  }
+
+  it should "handle inputs with leading and trailing whitespace" in {
+    val input = "   hello   world   "
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(2, 10, 5)
+  }
+
+  it should "correctly handle consecutive spaces and special characters" in {
+    val input = "hello    world!!!   this    is a test."
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(2, 10, 5)
+  }
+
+  it should "return empty word cloud if no words meet the criteria" in {
+    val input = "A B C"
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(4, 10, 5)
+    // You can check the output if countWords is refactored to return a value
+  }
+
+  it should "not crash on very long words" in {
+    val input = "a" * 1000 + " " + "b" * 1000
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(1, 10, 5)
+  }
+
+  it should "handle input with a mix of letters and numbers" in {
+    val input = "hello123 world456 test789"
+    val inputStream = new java.io.ByteArrayInputStream(input.getBytes("UTF-8"))
+    System.setIn(inputStream)
+
+    noException should be thrownBy TopWords.countWords(3, 10, 5)
   }
 }

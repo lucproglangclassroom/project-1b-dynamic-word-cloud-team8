@@ -1,3 +1,5 @@
+package TopWords
+
 import scala.io.Source
 import scala.collection.mutable.Queue
 import scala.util.control.Breaks._
@@ -54,27 +56,22 @@ object TopWords {
       val words = lines.flatMap(l => l.split("(?U)[^\\p{Alpha}0-9']+"))
       
       words.foreach { word =>
-        if (word != null) {
-          val cleanedWord = word.toLowerCase().trim
-
-          if (cleanedWord.length >= minLength) {
-            // Add word to the sliding window
-            wordQueue.enqueue(cleanedWord)
-            wordCountMap = wordCountMap + (cleanedWord -> (wordCountMap.getOrElse(cleanedWord, 0) + 1))
-
-            // Remove oldest word if window exceeds size
-            if (wordQueue.size > windowSize) {
-              val oldestWord = wordQueue.dequeue()
-              wordCountMap = wordCountMap + (oldestWord -> (wordCountMap(oldestWord) - 1))
-              if (wordCountMap(oldestWord) == 0) {
-                wordCountMap -= oldestWord
-              }
+        val cleanedWord = word.toLowerCase().trim
+        if (cleanedWord.length >= minLength) {
+          // Add word to the sliding window
+          wordQueue.enqueue(cleanedWord)
+          wordCountMap = wordCountMap + (cleanedWord -> (wordCountMap.getOrElse(cleanedWord, 0) + 1))
+          // Remove oldest word if window exceeds size
+          if (wordQueue.size > windowSize) {
+            val oldestWord = wordQueue.dequeue()
+            wordCountMap = wordCountMap + (oldestWord -> (wordCountMap(oldestWord) - 1))
+            if (wordCountMap(oldestWord) == 0) {
+              wordCountMap -= oldestWord
             }
-
-            // Print word cloud when window has enough words
-            if (wordQueue.size >= windowSize) {
-              printWordCloud(wordCountMap, cloudSize)
-            }
+          }
+          // Print word cloud when window has enough words
+          if (wordQueue.size >= windowSize) {
+            printWordCloud(wordCountMap, cloudSize)
           }
         }
       }

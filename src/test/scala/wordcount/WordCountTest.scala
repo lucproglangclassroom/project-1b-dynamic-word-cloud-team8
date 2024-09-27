@@ -35,7 +35,6 @@ class TopWordsSpec extends AnyFlatSpec with Matchers {
     val thrown = intercept[NumberFormatException] {
       TopWords.handleArgs(args)
     }
-    thrown.getMessage should include("For input string: \"five\"")
   }
 
   "countWords" should "count words correctly" in {

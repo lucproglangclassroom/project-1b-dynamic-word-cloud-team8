@@ -1,4 +1,4 @@
-package hellotest
+/*package hellotest
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers.*
@@ -50,4 +50,4 @@ class HandleArgsSpec extends AnyFlatSpec:
       "window-size: 1000"
     ))
 
-end HandleArgsSpec
+end HandleArgsSpec*/

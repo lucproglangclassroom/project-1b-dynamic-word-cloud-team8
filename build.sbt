@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
 )
 
-mainClass in Compile := Some("TopWords.TopWords")
+mainClass in (Compile/run) := Some("TopWords.TopWords")
 
 javaOptions ++= Seq(
   "-Dlogback.configurationFile=logback.xml"

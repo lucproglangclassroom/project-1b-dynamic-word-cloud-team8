@@ -7,6 +7,16 @@ import scala.sys.process._
 import scala.util.Try
 import scala.language.unsafeNulls
 
+trait wordCount {
+  val queue : Queue[String]
+  var map : Map[String, Int]
+}
+
+object wordCountMain extends wordCount{
+  val queue: Queue[String] = Queue[String]()
+  var map: Map[String,Int] = Map[String, Int]()
+}
+
 object TopWords {
 
   def handleArgs(args: Array[String]): Map[String, Int] = {
@@ -45,35 +55,33 @@ object TopWords {
 
     println(s"[main] DEBUG edu.luc.cs.cs371.topwords.Main - howMany=$cloudSize minLength=$minLength lastNWords=$windowSize everyKSteps=$updateEvery minFrequency=$minFrequency")
 
-    countWords(minLength, windowSize, cloudSize, minFrequency, updateEvery)
+
+    countWords(Source.stdin.getLines(), wordCountMain, minLength, windowSize, cloudSize, minFrequency, updateEvery)
   }
 
-  def countWords(minLength: Int, windowSize: Int, cloudSize: Int, minFrequency: Int, updateEvery: Int): Unit = {
-    val wordQueue = Queue[String]()
-    var wordCountMap = Map[String, Int]()
+  def countWords(lines: Iterator[String] , word_count: wordCount, minLength: Int, windowSize: Int, cloudSize: Int, minFrequency: Int, updateEvery: Int): Unit = {
     var wordCounter = 0
 
     breakable {
-      val lines = Source.stdin.getLines()
       val words = lines.flatMap(l => l.split("(?U)[^\\p{Alpha}0-9']+"))
 
       words.foreach { word =>
         val cleanedWord = word.toLowerCase().trim
         if (cleanedWord.length >= minLength) {
-          wordQueue.enqueue(cleanedWord)
-          wordCountMap = wordCountMap + (cleanedWord -> (wordCountMap.getOrElse(cleanedWord, 0) + 1))
+          word_count.queue.enqueue(cleanedWord)
+          word_count.map = word_count.map + (cleanedWord -> (word_count.map.getOrElse(cleanedWord, 0) + 1))
           wordCounter += 1
 
-          if (wordQueue.size > windowSize) {
-            val oldestWord = wordQueue.dequeue()
-            wordCountMap = wordCountMap + (oldestWord -> (wordCountMap(oldestWord) - 1))
-            if (wordCountMap(oldestWord) == 0) {
-              wordCountMap -= oldestWord
+          if (word_count.queue.size > windowSize) {
+            val oldestWord = word_count.queue.dequeue()
+            word_count.map = word_count.map + (oldestWord -> (word_count.map(oldestWord) - 1))
+            if (word_count.map(oldestWord) == 0) {
+              word_count.map -= oldestWord
             }
           }
 
-          if (wordCounter % updateEvery == 0) {
-            printWordCloud(wordCountMap, cloudSize, minFrequency)
+          if (wordCounter % updateEvery == 0 && word_count.queue.size == windowSize) {
+            printWordCloud(word_count, cloudSize, minFrequency)
           }
         }
       }
@@ -84,8 +92,8 @@ object TopWords {
     }
   }
 
-  def printWordCloud(wordCountMap: Map[String, Int], cloudSize: Int, minFrequency: Int): Unit = {
-    val sortedWords = wordCountMap.toSeq
+  def printWordCloud(word_count: wordCount, cloudSize: Int, minFrequency: Int): Unit = {
+    val sortedWords = word_count.map.toSeq
       .filter { case (_, count) => count >= minFrequency }
       .sortBy { case (word, count) => (-count, word) }
       .take(cloudSize)

@@ -86,7 +86,7 @@ object TopWords {
 
   def countWords(lines: Iterator[String] , word_count: wordCount, minLength: Int, windowSize: Int, cloudSize: Int, minFrequency: Int, updateEvery: Int): Unit = {
     var wordCounter = 0
-    val ignoredWords = Source.fromFile("/workspace/project-1b-dynamic-word-cloud-team8/ignore-list").getLines().map(_.trim).filter(_.nonEmpty).toSet
+    val ignoredWords = Source.fromFile("ignore-list").getLines().map(_.trim).filter(_.nonEmpty).toSet
 
     breakable {
       val words = lines.flatMap(l => l.split("(?U)[^\\p{Alpha}0-9']+"))

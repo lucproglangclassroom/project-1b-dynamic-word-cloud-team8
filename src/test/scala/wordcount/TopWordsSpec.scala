@@ -16,6 +16,8 @@ object wordCountTest extends wordCount{
   }
 }
 
+//Don't fail
+
 class TopWordsSpec extends AnyFlatSpec with Matchers {
 
   it should "correctly enqueue given words" in {

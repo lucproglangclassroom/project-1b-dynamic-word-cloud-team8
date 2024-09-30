@@ -3,8 +3,6 @@ package TopWords
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scala.collection.mutable.Queue
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 
 object wordCountTest extends wordCount{
   val queue: Queue[String] = Queue[String]()

@@ -10,11 +10,18 @@ import scala.language.unsafeNulls
 trait wordCount {
   val queue : Queue[String]
   var map : Map[String, Int]
+
+  def doOutput(output: String): Unit
+  
 }
 
 object wordCountMain extends wordCount{
   val queue: Queue[String] = Queue[String]()
   var map: Map[String,Int] = Map[String, Int]()
+
+  def doOutput(output: String): Unit = {
+    println(output)
+  }
 }
 
 object TopWords {
@@ -27,20 +34,38 @@ object TopWords {
       "min-frequency" -> 3,
       "update-every" -> 10
     )
-
+  
+    // Safely parse integers and fall back to defaults if parsing fails
+    def safeParseInt(value: String, default: Int): Int = {
+      Try(value.toInt).getOrElse(default)
+    }
+  
     val collectedArgs = args.grouped(2).collect {
-      case Array("-c", value) => "cloud-size" -> value.toInt
-      case Array("--cloud-size", value) => "cloud-size" -> value.toInt
-      case Array("-l", value) => "length-at-least" -> value.toInt
-      case Array("--length-at-least", value) => "length-at-least" -> value.toInt
-      case Array("-w", value) => "window-size" -> value.toInt
-      case Array("--window-size", value) => "window-size" -> value.toInt
-      case Array("-f", value) => "min-frequency" -> value.toInt
-      case Array("--min-frequency", value) => "min-frequency" -> value.toInt
-      case Array("-u", value) => "update-every" -> value.toInt
-      case Array("--update-every", value) => "update-every" -> value.toInt
+      case Array("-c", value) => "cloud-size" -> safeParseInt(value, defaults("cloud-size"))
+      case Array("--cloud-size", value) => "cloud-size" -> safeParseInt(value, defaults("cloud-size"))
+      case Array("-l", value) => "length-at-least" -> safeParseInt(value, defaults("length-at-least"))
+      case Array("--length-at-least", value) => "length-at-least" -> safeParseInt(value, defaults("length-at-least"))
+      case Array("-w", value) => "window-size" -> safeParseInt(value, defaults("window-size"))
+      case Array("--window-size", value) => "window-size" -> safeParseInt(value, defaults("window-size"))
+      case Array("-f", value) => "min-frequency" -> safeParseInt(value, defaults("min-frequency"))
+      case Array("--min-frequency", value) => "min-frequency" -> safeParseInt(value, defaults("min-frequency"))
+      case Array("-u", value) => "update-every" -> safeParseInt(value, defaults("update-every"))
+      case Array("--update-every", value) => "update-every" -> safeParseInt(value, defaults("update-every"))
+      
+      // In case a flag is provided without a value, use the default
+      case Array("-c") => "cloud-size" -> defaults("cloud-size")
+      case Array("--cloud-size") => "cloud-size" -> defaults("cloud-size")
+      case Array("-l") => "length-at-least" -> defaults("length-at-least")
+      case Array("--length-at-least") => "length-at-least" -> defaults("length-at-least")
+      case Array("-w") => "window-size" -> defaults("window-size")
+      case Array("--window-size") => "window-size" -> defaults("window-size")
+      case Array("-f") => "min-frequency" -> defaults("min-frequency")
+      case Array("--min-frequency") => "min-frequency" -> defaults("min-frequency")
+      case Array("-u") => "update-every" -> defaults("update-every")
+      case Array("--update-every") => "update-every" -> defaults("update-every")
     }.toMap
-
+  
+    // Merge default values with collected arguments, giving priority to the parsed args
     defaults ++ collectedArgs
   }
 
@@ -61,13 +86,14 @@ object TopWords {
 
   def countWords(lines: Iterator[String] , word_count: wordCount, minLength: Int, windowSize: Int, cloudSize: Int, minFrequency: Int, updateEvery: Int): Unit = {
     var wordCounter = 0
+    val ignoredWords = Source.fromFile("/workspace/project-1b-dynamic-word-cloud-team8/ignore-list").getLines().map(_.trim).filter(_.nonEmpty).toSet
 
     breakable {
       val words = lines.flatMap(l => l.split("(?U)[^\\p{Alpha}0-9']+"))
 
       words.foreach { word =>
         val cleanedWord = word.toLowerCase().trim
-        if (cleanedWord.length >= minLength) {
+        if (cleanedWord.length >= minLength && !ignoredWords.contains(cleanedWord)) {
           word_count.queue.enqueue(cleanedWord)
           word_count.map = word_count.map + (cleanedWord -> (word_count.map.getOrElse(cleanedWord, 0) + 1))
           wordCounter += 1
@@ -80,7 +106,7 @@ object TopWords {
             }
           }
 
-          if (wordCounter % updateEvery == 0 && word_count.queue.size == windowSize) {
+          if (word_count.queue.size == windowSize && wordCounter % updateEvery == 0) {
             printWordCloud(word_count, cloudSize, minFrequency)
           }
         }
@@ -99,7 +125,7 @@ object TopWords {
       .take(cloudSize)
 
     val wordCloud = sortedWords.map { case (word, count) => s"$word: $count" }
-    println(wordCloud.mkString(" "))
+    word_count.doOutput(wordCloud.mkString(" "))
   }
 
   def isStdoutClosed: Boolean = {

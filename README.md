@@ -13,7 +13,7 @@ Small project to get started with Scala and ScalaTest.
 ## Running the main program
 
 ```
-$ sbt run
+$ sbt run 
 ```
 
 

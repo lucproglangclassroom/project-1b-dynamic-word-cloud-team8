@@ -4,6 +4,7 @@
 - Completed: Treat words case-insensitively, i.e., ignore capitalization and the like
 - Completed: Add an command-line argument for updating the word cloud only every k steps.
 - Completed: Add an command-line argument for a minimum frequency to include a word in the word cloud.
+- Completed: Added Dynamic Visualizer
 
 # hello-scalatest-scala
 

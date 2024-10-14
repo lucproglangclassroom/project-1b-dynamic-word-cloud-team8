@@ -1,5 +1,10 @@
 package TopWordsFunctional
 
+import javafx.application.Platform
+import wordcount.wordCloudVisualizer
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import scala.concurrent.Future
 import scala.io.Source
 import scala.util.Try
 import scala.language.unsafeNulls
@@ -129,6 +134,11 @@ object TopWordsFunctional extends Config with WordProcessor with OutputHandler {
     // Corrected regex: [^\p{Alpha}0-9']+
     val words = Source.stdin.getLines().flatMap(line => line.split("""(?U)[^\p{Alpha}0-9']+"""))
 
+
+    Future {
+      wordCloudVisualizer.main(Array.empty) // Start the JavaFX application
+    }
+
     // Process words and obtain iterator of word counts
     val processed = processWords(words, ignoredWords, minLength, windowSize, updateEvery)
 
@@ -143,6 +153,11 @@ object TopWordsFunctional extends Config with WordProcessor with OutputHandler {
     processed.foreach { case (counts, _) =>
       val wordCloud = printWordCloud(counts, cloudSize, minFrequency)
       doOutput(wordCloud)
+      Thread.sleep(2000) // Adjust the time as needed
+      Platform.runLater(() => {
+        wordCloudVisualizer.getInstance().updateWordCloud(wordCloud)
+      })
+
     }
   }
 }

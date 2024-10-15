@@ -164,6 +164,7 @@ class TopWordsSpec extends AnyFlatSpec with Matchers {
     wordCountTest.map("test") shouldEqual 500
     wordCountTest.queue.size shouldEqual 500 // only the last 500 words should remain
   }
+  
 
   it should "handle a window size larger than the input size" in {
     // Reset wordCountTest state
@@ -220,6 +221,7 @@ class TopWordsSpec extends AnyFlatSpec with Matchers {
   
     wordCountTest.wordCloud shouldEqual "test: 6" // Updated after every 2 words
   }
+
 
   it should "fallback to default values for invalid or missing arguments" in {
     val args = Array("-c", "notanumber", "-l")

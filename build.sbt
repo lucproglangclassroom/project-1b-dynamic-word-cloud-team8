@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
 fork in run := true // This allows the JVM to run with JavaFX
 
 
-mainClass in (Compile/run) := Some("TopWords.TopWords")
+mainClass in (Compile/run) := Some("TopWordsFunctional.TopWordsFunctional")
 
 javaOptions ++= Seq(
   "-Dlogback.configurationFile=logback.xml"

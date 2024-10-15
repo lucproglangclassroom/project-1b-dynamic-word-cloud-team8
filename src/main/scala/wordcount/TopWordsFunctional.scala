@@ -153,7 +153,7 @@ object TopWordsFunctional extends Config with WordProcessor with OutputHandler {
     processed.foreach { case (counts, _) =>
       val wordCloud = printWordCloud(counts, cloudSize, minFrequency)
       doOutput(wordCloud)
-      Thread.sleep(2000) // Adjust the time as needed
+      Thread.sleep(1000) // Adjust the time as needed
       Platform.runLater(() => {
         wordCloudVisualizer.getInstance().updateWordCloud(wordCloud)
       })
